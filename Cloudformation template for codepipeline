@@ -1,0 +1,123 @@
+
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Metadata": {
+        "AWS::CloudFormation::Designer": {
+            "a0056c01-64b5-4a5d-ba38-fec50206819d": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 203,
+                    "y": 34
+                },
+                "z": 0
+            }
+        }
+    },
+    "Resources": {
+        "CPP38F19": {
+            "Type": "AWS::CodePipeline::Pipeline",
+            "Properties": {
+                "Name": "dms-customer-service-pipeline",
+        "RoleArn": "arn:aws:iam::<account:id>:role/service-role/AWSCodePipelineServiceRole-ap-south-1-Sample",
+        "ArtifactStore":{
+                "Type": "S3",
+                "Location": "codepipeline-ap-south-1-218380073071"
+        },
+        "Stages": [
+            {
+                "Name": "Source",
+                "Actions": [
+                    {
+                        "Name": "Source",
+                        "ActionTypeId": {
+                            "Category": "Source",
+                            "Owner": "AWS",
+                            "Provider": "CodeCommit",
+                            "Version": "1"
+                        },
+                        "RunOrder": 1,
+                        "Configuration": {
+                            "BranchName": "development",
+                            "OutputArtifactFormat": "CODE_ZIP",
+                            "PollForSourceChanges": "false",
+                            "RepositoryName": "test-service"
+                        },
+                        "OutputArtifacts": [
+                            {
+                                "Name": "SourceArtifact"
+                            }
+                        ],
+                        "InputArtifacts": [],
+                        "Region": "ap-south-1",
+                        "Namespace": "SourceVariables"
+                    }
+                ]
+            },
+                {
+              "Name": "Sonarqubereportgenrating",
+                "Actions": [
+                    {
+                        "Name": "Sonarqubereportgenrating",
+                        "ActionTypeId": {
+                            "Category": "Build",
+                            "Owner": "AWS",
+                            "Provider": "CodeBuild",
+                            "Version": "1"
+                        },
+                        "RunOrder": 1,
+                        "Configuration": {
+                            "ProjectName": "test-service-sonar-build"
+                        },
+                        "OutputArtifacts": [
+                            {
+                                "Name": "SonarBuildArtifact"
+                            }
+                        ],
+                        "InputArtifacts": [
+                            {
+                                "Name": "SourceArtifact"
+                            }
+                        ],
+                        "Region": "ap-south-1",
+                        "Namespace": "SonarBuildVariables"
+                    }
+                ]
+            },
+            {
+                "Name": "Build",
+                  "Actions": [
+                      {
+                          "Name": "Build",
+                          "ActionTypeId": {
+                              "Category": "Build",
+                              "Owner": "AWS",
+                              "Provider": "CodeBuild",
+                              "Version": "1"
+                          },
+                          "RunOrder": 1,
+                          "Configuration": {
+                              "ProjectName": "test-service-build"
+                          },
+                          "OutputArtifacts": [
+                              {
+                                  "Name": "BuildArtifact"
+                              }
+                          ],
+                          "InputArtifacts": [
+                              {
+                                  "Name": "SourceArtifact"
+                              }
+                          ],
+                          "Region": "ap-south-1",
+                          "Namespace": "BuildVariables"
+                      }
+                  ]
+              }
+        ]
+        }
+    }
+}
+}
